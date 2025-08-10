@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía Interactiva: Método Isobifásico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .ecg-path {
+            stroke-width: 2;
+            fill: none;
+        }
+        .btn-iso-active {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px #1d4ed8;
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-polarity-active {
+            box-shadow: 0 0 0 2px #1f2937;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto text-center">
+        <h1 class="text-2xl md:text-4xl font-bold text-gray-800 mb-2">Calculadora del Eje por Derivación Isobifásica</h1>
+        <p class="text-gray-600 mb-8">Una herramienta interactiva para calcular el eje eléctrico del corazón.</p>
+
+        <div class="card p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Paso 1: Selecciona la Derivación Isobifásica</h2>
+            <div id="controls" class="flex flex-wrap justify-center gap-2 md:gap-3">
+                <button onclick="updateIsoLead('DI')" id="btn-DI" class="px-4 py-2 text-sm md:px-5 md:py-2 bg-white text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300">DI</button>
+                <button onclick="updateIsoLead('DII')" id="btn-DII" class="px-4 py-2 text-sm md:px-5 md:py-2 bg-white text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300">DII</button>
+                <button onclick="updateIsoLead('DIII')" id="btn-DIII" class="px-4 py-2 text-sm md:px-5 md:py-2 bg-white text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300">DIII</button>
+                <button onclick="updateIsoLead('aVR')" id="btn-aVR" class="px-4 py-2 text-sm md:px-5 md:py-2 bg-white text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300">aVR</button>
+                <button onclick="updateIsoLead('aVL')" id="btn-aVL" class="px-4 py-2 text-sm md:px-5 md:py-2 bg-white text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300">aVL</button>
+                <button onclick="updateIsoLead('aVF')" id="btn-aVF" class="px-4 py-2 text-sm md:px-5 md:py-2 bg-white text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300">aVF</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <!-- Columna del Círculo Hexaxial -->
+            <div class="card p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Visualización del Eje</h2>
+                <svg id="cabrera-circle" viewBox="0 0 200 200" class="w-full h-auto max-w-sm mx-auto">
+                    <line x1="0" y1="100" x2="200" y2="100" stroke="#d1d5db" stroke-width="1"/><text x="190" y="95" font-size="8" fill="#6b7280">DI</text>
+                    <line x1="100" y1="0" x2="100" y2="200" stroke="#d1d5db" stroke-width="1"/><text x="105" y="12" font-size="8" fill="#6b7280">aVF</text>
+                    <line x1="50" y1="13.4" x2="150" y2="186.6" stroke="#d1d5db" stroke-width="1"/><text x="150" y="190" font-size="8" fill="#6b7280">DII</text>
+                    <line x1="150" y1="13.4" x2="50" y2="186.6" stroke="#d1d5db" stroke-width="1"/><text x="45" y="190" font-size="8" fill="#6b7280">DIII</text>
+                    <line x1="13.4" y1="50" x2="186.6" y2="150" stroke="#d1d5db" stroke-width="1"/><text x="10" y="55" font-size="8" fill="#6b7280">aVR</text>
+                    <line x1="186.6" y1="50" x2="13.4" y2="150" stroke="#d1d5db" stroke-width="1"/><text x="180" y="55" font-size="8" fill="#6b7280">aVL</text>
+                    
+                    <line id="isobiphasic-line" stroke="#fbbf24" stroke-width="3"/>
+                    <line id="perpendicular-line" stroke="#3b82f6" stroke-width="3" stroke-dasharray="4"/>
+                    
+                    <line id="axis-vector" x1="100" y1="100" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrowhead)"/>
+                    <defs><marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"></path></marker></defs>
+                </svg>
+            </div>
+
+            <!-- Columna de Derivaciones y Resultado -->
+            <div class="card p-6 flex flex-col justify-center text-left space-y-6">
+                <div>
+                    <p class="font-semibold text-gray-700 mb-1 text-center">Morfología Isobifásica (R = S)</p>
+                    <div class="flex items-center gap-4">
+                        <span class="font-bold text-lg text-amber-500 w-12" id="isobiphasic-lead-name"></span>
+                        <div class="w-full bg-gray-100 rounded-lg p-2">
+                             <svg viewBox="0 0 100 40" class="w-full h-auto">
+                                <path id="isobiphasic-ecg" class="ecg-path stroke-amber-500"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="border-t pt-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2 text-center">Paso 2: Define la Polaridad</h2>
+                     <p class="font-semibold text-gray-700 mb-2 text-center">¿Cómo es el QRS en la derivación perpendicular (<span id="perp-lead-name-question" class="text-blue-600 font-bold"></span>)?</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-full bg-gray-100 rounded-lg p-2">
+                             <svg viewBox="0 0 100 40" class="w-full h-auto">
+                                <path id="perpendicular-ecg" class="ecg-path stroke-blue-600"/>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                             <button id="btn-pos" onclick="setPolarity(true)" class="px-4 py-1 rounded-md bg-green-500 text-white font-semibold transition-transform">Positivo (qR)</button>
+                             <button id="btn-neg" onclick="setPolarity(false)" class="px-4 py-1 rounded-md bg-red-500 text-white font-semibold transition-transform">Negativo (rS)</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 pt-6 border-t text-center">
+                    <div class="flex justify-center items-center gap-2 mb-2">
+                        <h2 class="text-xl font-bold text-gray-800">Resultado Final</h2>
+                        <button id="speak-button" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.858 5.858a3 3 0 014.242 0L12 7.758l1.9-1.9a3 3 0 014.242 0 3 3 0 010 4.242L12 16.242l-5.9-5.9a3 3 0 010-4.242z" transform="translate(-1 -1) scale(1.2)"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M12 18a3 3 0 01-3-3V9a3 3 0 016 0v6a3 3 0 01-3 3z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="text-gray-600" id="explanation-text"></p>
+                    <p class="text-2xl font-bold text-red-600 mt-2" id="final-axis"></p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-12 text-center text-sm text-gray-500">
+            <p>Dr. Javier A. Rodríguez. MD, MSc.</p>
+            <p>Agosto 10 de 2025</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentIsoLead = 'DI';
+        let isPerpPositive = true;
+
+        const axisData = {
+            'DI':    { angle: 0,   perp: 'aVF', perpAngle: 90 },
+            'DII':   { angle: 60,  perp: 'aVL', perpAngle: -30 },
+            'DIII':  { angle: 120, perp: 'aVR', perpAngle: -150 },
+            'aVR':   { angle: -150,perp: 'DIII',perpAngle: 120 },
+            'aVL':   { angle: -30, perp: 'DII', perpAngle: 60 },
+            'aVF':   { angle: 90,  perp: 'DI',  perpAngle: 0 }
+        };
+
+        const ecgPaths = {
+            isobiphasic: 'M 0 20 L 20 20 L 30 5 L 40 35 L 50 20 L 100 20',
+            positive: 'M 0 20 L 20 20 L 25 25 L 35 5 L 45 20 L 100 20',
+            negative: 'M 0 20 L 20 20 L 25 15 L 35 35 L 45 20 L 100 20'
+        };
+
+        function getLineCoords(angle) {
+            const angleRad = angle * Math.PI / 180;
+            const r = 90;
+            return {
+                x1: 100 - r * Math.cos(angleRad), y1: 100 - r * Math.sin(angleRad),
+                x2: 100 + r * Math.cos(angleRad), y2: 100 + r * Math.sin(angleRad)
+            };
+        }
+        
+        function speak(text) {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'es-ES';
+            speechSynthesis.speak(utterance);
+        }
+
+        function updateDisplay() {
+            const data = axisData[currentIsoLead];
+            
+            const isoCoords = getLineCoords(data.angle);
+            const isoLine = document.getElementById('isobiphasic-line');
+            isoLine.setAttribute('x1', isoCoords.x1);
+            isoLine.setAttribute('y1', isoCoords.y1);
+            isoLine.setAttribute('x2', isoCoords.x2);
+            isoLine.setAttribute('y2', isoCoords.y2);
+
+            const perpCoords = getLineCoords(data.perpAngle);
+            const perpLine = document.getElementById('perpendicular-line');
+            perpLine.setAttribute('x1', perpCoords.x1);
+            perpLine.setAttribute('y1', perpCoords.y1);
+            perpLine.setAttribute('x2', perpCoords.x2);
+            perpLine.setAttribute('y2', perpCoords.y2);
+
+            let finalAngle = data.perpAngle;
+            let explanationText = `Como <b class="text-blue-600">${data.perp}</b> es positivo (qR), el eje apunta hacia él.`;
+            let audioText = `El eje es de ${finalAngle >= 0 ? 'más' : ''} ${finalAngle} grados. Esto se debe a que la derivación ${currentIsoLead} es isobifásica, y su perpendicular, ${data.perp}, es positiva.`
+
+            if (!isPerpPositive) {
+                finalAngle = data.perpAngle + 180;
+                if (finalAngle > 180) finalAngle -= 360;
+                explanationText = `Como <b class="text-blue-600">${data.perp}</b> es negativo (rS), el eje apunta en la dirección opuesta.`;
+                audioText = `El eje es de ${finalAngle} grados. Esto se debe a que la derivación ${currentIsoLead} es isobifásica, y su perpendicular, ${data.perp}, es negativa, desviando el eje 180 grados.`
+            }
+
+            const vectorEndCoords = getLineCoords(finalAngle);
+            const axisVector = document.getElementById('axis-vector');
+            axisVector.setAttribute('x1', 100);
+            axisVector.setAttribute('y1', 100);
+            axisVector.setAttribute('x2', vectorEndCoords.x2);
+            axisVector.setAttribute('y2', vectorEndCoords.y2);
+
+            document.getElementById('isobiphasic-lead-name').textContent = currentIsoLead;
+            document.getElementById('isobiphasic-ecg').setAttribute('d', ecgPaths.isobiphasic);
+            document.getElementById('perp-lead-name-question').textContent = data.perp;
+            document.getElementById('perpendicular-ecg').setAttribute('d', isPerpPositive ? ecgPaths.positive : ecgPaths.negative);
+            document.getElementById('explanation-text').innerHTML = explanationText;
+            document.getElementById('final-axis').textContent = `Eje = ${finalAngle >= 0 ? '+' : ''}${finalAngle}°`;
+
+            document.querySelectorAll('#controls button').forEach(btn => btn.classList.remove('btn-iso-active'));
+            document.getElementById(`btn-${currentIsoLead}`).classList.add('btn-iso-active');
+            
+            document.getElementById('btn-pos').classList.toggle('btn-polarity-active', isPerpPositive);
+            document.getElementById('btn-neg').classList.toggle('btn-polarity-active', !isPerpPositive);
+
+            document.getElementById('speak-button').onclick = () => speak(audioText);
+        }
+
+        function updateIsoLead(isobiphasicLead) {
+            currentIsoLead = isobiphasicLead;
+            updateDisplay();
+        }
+
+        function setPolarity(isPositive) {
+            isPerpPositive = isPositive;
+            updateDisplay();
+        }
+
+        window.onload = () => {
+            updateIsoLead('DI');
+            setPolarity(true);
+        };
+    </script>
+</body>
+</html>
